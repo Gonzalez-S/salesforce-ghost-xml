@@ -1,0 +1,114 @@
+{
+  "name": "salesforce-ghost-xml",
+  "displayName": "Salesforce Ghost XML",
+  "description": "Salesforce DX: nest paired *-meta.xml under source files in Explorer; open the sibling meta from the editor context menu or keyboard (no Command Palette clutter).",
+  "version": "0.1.0",
+  "publisher": "GonzalezDev",
+  "icon": "images/icon.png",
+  "engines": {
+    "vscode": "^1.85.0"
+  },
+  "categories": [
+    "Other"
+  ],
+  "keywords": [
+    "salesforce",
+    "xml",
+    "meta.xml",
+    "explorer"
+  ],
+  "activationEvents": [
+    "workspaceContains:**/sfdx-project.json"
+  ],
+  "main": "./out/extension.js",
+  "contributes": {
+    "commands": [
+      {
+        "command": "salesforceGhostXml.toggle",
+        "title": "Toggle Explorer file nesting",
+        "category": "Salesforce Ghost XML"
+      },
+      {
+        "command": "salesforceGhostXml.openCompanionMetaXml",
+        "title": "Open paired *-meta.xml (same folder)",
+        "category": "Salesforce Ghost XML"
+      }
+    ],
+    "configuration": {
+      "title": "Salesforce Ghost XML",
+      "properties": {
+        "salesforceGhostXml.explorerIntegrationEnabled": {
+          "type": "boolean",
+          "default": true,
+          "scope": "window",
+          "title": "Explorer file nesting for paired meta",
+          "markdownDescription": "When **on**, adds Explorer *file nesting* so paired `*-meta.xml` files group under their source. LWC bundles use a single `*.js-meta.xml` for the component; it is nested under **`.js`** and also under **`.html` / `.css` / `.svg`** when those files share the same base name.\n\n**Open paired meta:** Editor context menu or keys from **Keyboard Shortcuts** (search this extension)."
+        },
+        "salesforceGhostXml.showStatusBar": {
+          "type": "boolean",
+          "default": true,
+          "scope": "window",
+          "title": "Status bar (SF Meta)",
+          "description": "Show the SF Meta status bar item."
+        }
+      }
+    },
+    "menus": {
+      "editor/context": [
+        {
+          "command": "salesforceGhostXml.openCompanionMetaXml",
+          "group": "navigation@98",
+          "when": "salesforceGhostXml.isSalesforceProject && resourceExtname =~ /^\\.(cls|trigger|page|component|cmp|app|design|evt|intf|tokens|auradoc|js|html|css|svg)$/"
+        }
+      ],
+      "commandPalette": [
+        {
+          "command": "salesforceGhostXml.toggle",
+          "when": "salesforceGhostXml.isSalesforceProject"
+        }
+      ]
+    },
+    "keybindings": [
+      {
+        "command": "salesforceGhostXml.openCompanionMetaXml",
+        "key": "ctrl+shift+alt+m",
+        "mac": "cmd+shift+alt+m",
+        "when": "editorTextFocus && salesforceGhostXml.isSalesforceProject"
+      },
+      {
+        "command": "salesforceGhostXml.toggle",
+        "key": "ctrl+shift+alt+g",
+        "mac": "cmd+shift+alt+g",
+        "when": "salesforceGhostXml.isSalesforceProject"
+      }
+    ]
+  },
+  "scripts": {
+    "vscode:prepublish": "npm run verify",
+    "compile": "tsc -p tsconfig.build.json",
+    "watch": "tsc -watch -p tsconfig.build.json",
+    "typecheck": "tsc -p ./",
+    "lint": "eslint . --ext .ts,.mts --ignore-pattern out",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "verify": "npm run format:check && npm run lint && npm run typecheck && npm run test && npm run compile",
+    "test": "vitest run",
+    "test:watch": "vitest",
+    "test:coverage": "vitest run --coverage",
+    "package": "vsce package --no-dependencies --allow-missing-repository",
+    "package:install": "npm run package && node scripts/install-vsix.mjs"
+  },
+  "devDependencies": {
+    "@types/node": "^20.11.0",
+    "@types/vscode": "^1.85.0",
+    "@typescript-eslint/eslint-plugin": "^8.57.2",
+    "@typescript-eslint/parser": "^8.57.2",
+    "@vitest/coverage-v8": "^2.1.9",
+    "@vscode/vsce": "^3.2.1",
+    "eslint": "^8.57.1",
+    "eslint-config-prettier": "^9.1.2",
+    "prettier": "^3.4.2",
+    "typescript": "^5.3.3",
+    "vitest": "^2.1.9"
+  }
+}

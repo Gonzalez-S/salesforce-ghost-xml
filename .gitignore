@@ -1,1 +1,6 @@
 .cursorrules
+node_modules/
+out/
+coverage/
+*.vsix
+.DS_Store
