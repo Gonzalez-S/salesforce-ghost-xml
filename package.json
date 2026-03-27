@@ -2,7 +2,7 @@
   "name": "salesforce-ghost-xml",
   "displayName": "Salesforce Ghost XML",
   "description": "Salesforce DX: nest paired *-meta.xml under source files in Explorer; open the sibling meta from the editor context menu or keyboard (no Command Palette clutter).",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "publisher": "GonzalezDev",
   "icon": "images/icon.png",
   "engines": {
