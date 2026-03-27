@@ -5,6 +5,7 @@ src/**
 test/**
 .gitignore
 .cursorrules
+docs/**
 **/*.map
 **/tsconfig.json
 **/tsconfig.build.json
