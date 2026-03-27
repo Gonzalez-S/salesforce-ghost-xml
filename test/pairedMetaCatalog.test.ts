@@ -21,11 +21,9 @@ describe('package.json vs catalog', () => {
 });
 
 describe('PAIRED_META_FILE_NESTING_PATTERNS', () => {
-  it('nests LWC js-meta under html, css, svg, and js', () => {
-    expect(PAIRED_META_FILE_NESTING_PATTERNS['*.html']).toContain('js-meta.xml');
-    expect(PAIRED_META_FILE_NESTING_PATTERNS['*.css']).toContain('js-meta.xml');
-    expect(PAIRED_META_FILE_NESTING_PATTERNS['*.svg']).toContain('js-meta.xml');
+  it('nests LWC js-meta only under *.js', () => {
     expect(PAIRED_META_FILE_NESTING_PATTERNS['*.js']).toBe('${capture}.js-meta.xml');
+    expect(PAIRED_META_FILE_NESTING_PATTERNS['*.html']).toBeUndefined();
   });
 
   it('lists a pattern for every companion extension', () => {
@@ -36,9 +34,8 @@ describe('PAIRED_META_FILE_NESTING_PATTERNS', () => {
 });
 
 describe('COMPANION_META_SUFFIX_BY_EXT', () => {
-  it('uses js-meta.xml for LWC bundle parts', () => {
-    expect(COMPANION_META_SUFFIX_BY_EXT['.html']).toBe('.js-meta.xml');
-    expect(COMPANION_META_SUFFIX_BY_EXT['.css']).toBe('.js-meta.xml');
-    expect(COMPANION_META_SUFFIX_BY_EXT['.svg']).toBe('.js-meta.xml');
+  it('uses js-meta.xml for .js', () => {
+    expect(COMPANION_META_SUFFIX_BY_EXT['.js']).toBe('.js-meta.xml');
+    expect(COMPANION_META_SUFFIX_BY_EXT['.html']).toBeUndefined();
   });
 });

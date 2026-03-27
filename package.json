@@ -42,7 +42,7 @@
           "default": true,
           "scope": "window",
           "title": "Explorer file nesting for paired meta",
-          "markdownDescription": "When **on**, adds Explorer *file nesting* so paired `*-meta.xml` files group under their source. LWC bundles use a single `*.js-meta.xml` for the component; it is nested under **`.js`** and also under **`.html` / `.css` / `.svg`** when those files share the same base name.\n\n**Open paired meta:** Editor context menu or keys from **Keyboard Shortcuts** (search this extension)."
+          "markdownDescription": "When **on**, adds Explorer *file nesting* for paired `*-meta.xml`. LWC uses one `*.js-meta.xml` per bundle under the main `*.js` when that name matches the bundle folder.\n\n**Collapsed nested files:** Set built-in **`explorer.fileNesting.expand`** to **`false`** so nested files stay collapsed when you expand a folder (*Explorer › File Nesting: Expand*). Applies to all Explorer nesting in the workspace.\n\n**Open paired meta:** Editor context menu or keys from **Keyboard Shortcuts** (search this extension)."
         },
         "salesforceGhostXml.showStatusBar": {
           "type": "boolean",
@@ -58,7 +58,7 @@
         {
           "command": "salesforceGhostXml.openCompanionMetaXml",
           "group": "navigation@98",
-          "when": "salesforceGhostXml.isSalesforceProject && resourceExtname =~ /^\\.(cls|trigger|page|component|cmp|app|design|evt|intf|tokens|auradoc|js|html|css|svg)$/"
+          "when": "salesforceGhostXml.isSalesforceProject && resourceExtname =~ /^\\.(cls|trigger|page|component|js)$/"
         }
       ],
       "commandPalette": [

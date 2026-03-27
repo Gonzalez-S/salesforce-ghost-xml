@@ -1,7 +1,7 @@
 import * as vscode from 'vscode';
 import { PAIRED_META_FILE_NESTING_PATTERNS } from './pairedMetaCatalog';
 
-const WORKSPACE_STATE_OWNED_PATTERN_KEYS = 'ownedFileNestingPatternKeys';
+const WORKSPACE_STATE_OWNED_PAIRS = 'ownedFileNestingPairs';
 const WORKSPACE_STATE_OWNED_ENABLED_FLAG = 'ownedExplorerFileNestingEnabled';
 
 function getCurrentNestingPatterns(
@@ -20,25 +20,35 @@ function getCurrentNestingPatterns(
   return out;
 }
 
-function isOwnedNestingValue(parentGlob: string, value: string): boolean {
-  return PAIRED_META_FILE_NESTING_PATTERNS[parentGlob] === value;
-}
-
 export async function applyPairedFileNesting(context: vscode.ExtensionContext): Promise<void> {
   const explorerConfig = vscode.workspace.getConfiguration('explorer');
   const current = getCurrentNestingPatterns(explorerConfig);
-  const ownedKeys = context.workspaceState.get<string[]>(WORKSPACE_STATE_OWNED_PATTERN_KEYS) ?? [];
+  const ownedPairs: Record<string, string> = {
+    ...(context.workspaceState.get<Record<string, string>>(WORKSPACE_STATE_OWNED_PAIRS) ?? {}),
+  };
   const next: Record<string, string> = { ...current };
-  const nextOwned = new Set(ownedKeys);
 
   for (const [parentPattern, childPattern] of Object.entries(PAIRED_META_FILE_NESTING_PATTERNS)) {
-    if (current[parentPattern] === undefined) {
-      next[parentPattern] = childPattern;
-      nextOwned.add(parentPattern);
+    const cur = current[parentPattern];
+    let newVal: string | undefined;
+
+    if (parentPattern === '*.js') {
+      if (cur === undefined) {
+        newVal = childPattern;
+      } else if (!cur.includes('js-meta.xml')) {
+        newVal = `${cur}, ${childPattern}`;
+      }
+    } else if (cur === undefined) {
+      newVal = childPattern;
+    }
+
+    if (newVal !== undefined) {
+      next[parentPattern] = newVal;
+      ownedPairs[parentPattern] = newVal;
     }
   }
 
-  await context.workspaceState.update(WORKSPACE_STATE_OWNED_PATTERN_KEYS, [...nextOwned]);
+  await context.workspaceState.update(WORKSPACE_STATE_OWNED_PAIRS, ownedPairs);
 
   const enabledInspect = explorerConfig.inspect<boolean>('fileNesting.enabled');
   const hadWorkspaceEnabled = enabledInspect?.workspaceValue !== undefined;
@@ -55,21 +65,21 @@ export async function applyPairedFileNesting(context: vscode.ExtensionContext): 
 }
 
 export async function clearPairedFileNesting(context: vscode.ExtensionContext): Promise<void> {
-  const ownedKeys = context.workspaceState.get<string[]>(WORKSPACE_STATE_OWNED_PATTERN_KEYS) ?? [];
+  const ownedPairs =
+    context.workspaceState.get<Record<string, string>>(WORKSPACE_STATE_OWNED_PAIRS) ?? {};
   const ownedEnabled = context.workspaceState.get<boolean>(WORKSPACE_STATE_OWNED_ENABLED_FLAG);
 
   const explorerConfig = vscode.workspace.getConfiguration('explorer');
   const current = getCurrentNestingPatterns(explorerConfig);
   const next: Record<string, string> = { ...current };
 
-  for (const key of ownedKeys) {
-    const val = next[key];
-    if (val !== undefined && isOwnedNestingValue(key, val)) {
+  for (const [key, val] of Object.entries(ownedPairs)) {
+    if (next[key] === val) {
       delete next[key];
     }
   }
 
-  await context.workspaceState.update(WORKSPACE_STATE_OWNED_PATTERN_KEYS, []);
+  await context.workspaceState.update(WORKSPACE_STATE_OWNED_PAIRS, {});
   await explorerConfig.update(
     'fileNesting.patterns',
     Object.keys(next).length > 0 ? next : undefined,

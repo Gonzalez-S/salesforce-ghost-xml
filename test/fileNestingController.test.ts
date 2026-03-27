@@ -72,13 +72,20 @@ describe('fileNestingController', () => {
     hoist.wsStore.clear();
   });
 
-  it('apply adds patterns and records owned keys', async () => {
+  it('apply adds patterns and records owned pairs', async () => {
     await applyPairedFileNesting(makeContext());
     expect(hoist.patterns['*.cls']).toContain('cls-meta.xml');
-    expect(hoist.patterns['*.html']).toContain('js-meta.xml');
-    const owned = hoist.wsStore.get('ownedFileNestingPatternKeys') as string[];
-    expect(owned).toContain('*.cls');
-    expect(owned).toContain('*.html');
+    expect(hoist.patterns['*.js']).toContain('js-meta.xml');
+    const owned = hoist.wsStore.get('ownedFileNestingPairs') as Record<string, string>;
+    expect(owned['*.cls']).toContain('cls-meta.xml');
+    expect(owned['*.js']).toContain('js-meta.xml');
+  });
+
+  it('merges *.js when a pattern already exists without js-meta.xml', async () => {
+    hoist.patterns['*.js'] = '${capture}.map';
+    await applyPairedFileNesting(makeContext());
+    expect(hoist.patterns['*.js']).toContain('js-meta.xml');
+    expect(hoist.patterns['*.js']).toContain('map');
   });
 
   it('clear removes extension-owned patterns', async () => {
@@ -86,6 +93,6 @@ describe('fileNestingController', () => {
     await applyPairedFileNesting(ctx);
     await clearPairedFileNesting(ctx);
     expect(hoist.patterns['*.cls']).toBeUndefined();
-    expect(hoist.patterns['*.html']).toBeUndefined();
+    expect(hoist.patterns['*.js']).toBeUndefined();
   });
 });
